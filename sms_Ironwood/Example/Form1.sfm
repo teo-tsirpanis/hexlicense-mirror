@@ -1,0 +1,174 @@
+<SMART>
+  <Form version="2" subversion="2">
+    <Created>2016-10-06T19:26:02.435</Created>
+    <Modified>2017-02-10T08:34:53.338</Modified>
+    <object type="TW3Form">
+      <Caption>W3Form</Caption>
+      <Name>Form1</Name>
+      <object type="TW3Button">
+        <Caption>Generate</Caption>
+        <Width>128</Width>
+        <Top>248</Top>
+        <Left>248</Left>
+        <Height>56</Height>
+        <Name>btnGenerate</Name>
+        <OnClick>W3Button1Click</OnClick>
+      </object>
+      <object type="TW3Label">
+        <Caption>HexLicense &quot;Ironwood&quot; for JavaScript</Caption>
+        <Width>368</Width>
+        <Top>8</Top>
+        <Left>8</Left>
+        <Height>40</Height>
+        <Color>128</Color>
+        <Name>W3Label1</Name>
+      </object>
+      <object type="TW3Label">
+        <Caption>Root Key</Caption>
+        <Width>128</Width>
+        <Top>48</Top>
+        <Left>8</Left>
+        <Height>32</Height>
+        <Name>W3Label2</Name>
+      </object>
+      <object type="TW3EditBox">
+        <Value></Value>
+        <Text>$52,$E3,$D1,$D2,$FD,$D6,$83,$5D,$00,$19,$98,$4C</Text>
+        <Range></Range>
+        <Width>368</Width>
+        <Top>80</Top>
+        <Left>8</Left>
+        <Height>32</Height>
+        <Name>edRootKey</Name>
+      </object>
+      <object type="TW3Label">
+        <Caption>Items</Caption>
+        <Width>88</Width>
+        <Top>112</Top>
+        <Left>8</Left>
+        <Height>32</Height>
+        <Name>W3Label3</Name>
+      </object>
+      <object type="TW3EditBox">
+        <Value></Value>
+        <Text>100</Text>
+        <Range></Range>
+        <Width>96</Width>
+        <Top>144</Top>
+        <Left>8</Left>
+        <Height>32</Height>
+        <Name>edItems</Name>
+      </object>
+      <object type="TW3Label">
+        <Caption>Modulator</Caption>
+        <Width>128</Width>
+        <Top>112</Top>
+        <Left>112</Left>
+        <Height>32</Height>
+        <Name>W3Label4</Name>
+      </object>
+      <object type="TW3ComboBox">
+        <Width>128</Width>
+        <Top>144</Top>
+        <Left>112</Left>
+        <Height>33</Height>
+        <Name>cbModulators</Name>
+      </object>
+      <object type="TW3Label">
+        <Caption>Generated items</Caption>
+        <Width>232</Width>
+        <Top>272</Top>
+        <Left>8</Left>
+        <Height>32</Height>
+        <Color>128</Color>
+        <Name>W3Label5</Name>
+      </object>
+      <object type="TW3Scrollbox">
+        <Width>368</Width>
+        <Top>312</Top>
+        <Left>8</Left>
+        <Height>280</Height>
+        <Name>W3Scrollbox1</Name>
+      </object>
+      <object type="TW3Label">
+        <Caption>Gates</Caption>
+        <Width>88</Width>
+        <Top>176</Top>
+        <Left>8</Left>
+        <Height>32</Height>
+        <Name>W3Label6</Name>
+      </object>
+      <object type="TW3EditBox">
+        <Value></Value>
+        <Text>64</Text>
+        <Range></Range>
+        <Width>96</Width>
+        <Top>208</Top>
+        <Left>8</Left>
+        <Height>32</Height>
+        <Enabled>False</Enabled>
+        <Name>edGates</Name>
+      </object>
+      <object type="TW3Label">
+        <Caption>Obfuscator</Caption>
+        <Width>128</Width>
+        <Top>176</Top>
+        <Left>112</Left>
+        <Height>32</Height>
+        <Name>W3Label7</Name>
+      </object>
+      <object type="TW3ComboBox">
+        <Width>128</Width>
+        <Top>208</Top>
+        <Left>112</Left>
+        <Height>33</Height>
+        <Name>cbGematria</Name>
+      </object>
+      <object type="TW3ToggleSwitch">
+        <Width>128</Width>
+        <Top>208</Top>
+        <Left>248</Left>
+        <Height>32</Height>
+        <Name>cbAlloc</Name>
+      </object>
+      <object type="TW3Label">
+        <Caption>Allocate range</Caption>
+        <Width>128</Width>
+        <Top>176</Top>
+        <Left>248</Left>
+        <Height>32</Height>
+        <Name>W3Label8</Name>
+      </object>
+      <object type="TW3Label">
+        <Caption>Method</Caption>
+        <Width>96</Width>
+        <Top>112</Top>
+        <Left>248</Left>
+        <Height>32</Height>
+        <Name>W3Label9</Name>
+      </object>
+      <object type="TW3ComboBox">
+        <Width>128</Width>
+        <Top>144</Top>
+        <Left>248</Left>
+        <Height>33</Height>
+        <Name>cbMethod</Name>
+      </object>
+      <object type="TW3Button">
+        <Caption>Info</Caption>
+        <Width>50</Width>
+        <Top>16</Top>
+        <Left>312</Left>
+        <Height>22</Height>
+        <Name>btnInfo</Name>
+      </object>
+      <object type="TW3Image">
+        <Width>259</Width>
+        <Top>8</Top>
+        <Left>392</Left>
+        <Height>296</Height>
+        <Name>W3Image1</Name>
+      </object>
+    </object>
+  </Form>
+</SMART>

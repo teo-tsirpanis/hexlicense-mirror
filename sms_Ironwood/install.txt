@@ -1,0 +1,14 @@
+Installing Ironwood for Smart Pascal
+
+Copy the folder containing the core units to the Smart Pascal \$Library folder.
+You can quickly locate this under the start-menu item for Smart.
+
+Secondly, you may want to move the example folder to your \$Projects folder.
+
+A restart of Smart Mobile Studio is required.
+
+Note: Ironwood uses the latest units from the Smart alpha. As of writing (10.02.2017) this is scheduled
+to be released within 1-2 weeks.
+
+Ironwood should run fine under older versions of Smart Mobile Studio, however the unit-names needs to be
+adjusted for the older RTL.

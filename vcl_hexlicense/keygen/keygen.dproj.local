@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.755,Z:\Dropbox\Development\Delphi Source Projects\License_Manager\Docs\Demos\keygen\Unit4.dfm=Z:\Dropbox\Development\Delphi Source Projects\License_Manager\Docs\Demos\keygen\numberform.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.312,Z:\Dropbox\Development\Delphi Source Projects\License_Manager\Docs\Demos\keygen\Unit4.dfm=Z:\Dropbox\Development\Delphi Source Projects\License_Manager\Docs\Demos\keygen\exportform.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.197,C:\temp\hexlicense\trunk\keygen\mainform.dfm=C:\temp\hexlicense\trunk\keygen\Unit3.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.004,Z:\Dropbox\Development\Delphi Source Projects\License_Manager\Docs\Demos\keygen\Unit4.dfm=Z:\Dropbox\Development\Delphi Source Projects\License_Manager\Docs\Demos\keygen\aboutform.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.830,C:\Users\p0w3r\Documents\RAD Studio\Projects\Project1.dproj=C:\Users\p0w3r\Dropbox\Development\Delphi Source Projects\License_Manager\Docs\Demos\keygen\keygen.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.754,C:\Users\p0w3r\Documents\RAD Studio\Projects\Unit3.dfm=C:\Users\p0w3r\Dropbox\Development\Delphi Source Projects\License_Manager\Docs\Demos\keygen\Unit3.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.197,C:\temp\hexlicense\trunk\keygen\mainform.pas=C:\temp\hexlicense\trunk\keygen\Unit3.pas</Transaction>
+  </Transactions>
+	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="numberform.pas"/>
+    <File Path="numberform.dfm"/>
+    <File Path="exportform.pas"/>
+    <File Path="exportform.dfm"/>
+    <File Path="aboutform.pas"/>
+    <File Path="aboutform.dfm"/>
+    <File Path="MainForm.pas"/>
+    <File Path="MainForm.dfm"/>
+  </ProjectSortOrder>
+</BorlandProject>

@@ -1,0 +1,105 @@
+object MainForm: TMainForm
+  Left = 0
+  Top = 0
+  BorderIcons = [biSystemMenu, biMinimize]
+  Caption = 'HexLicense Mobile Test App'
+  ClientHeight = 519
+  ClientWidth = 407
+  Position = ScreenCenter
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnShow = FormShow
+  DesignerMasterStyle = 3
+  object btnTestHexLicense: TButton
+    Align = Top
+    Margins.Left = 10.000000000000000000
+    Margins.Top = 10.000000000000000000
+    Margins.Right = 10.000000000000000000
+    Position.X = 10.000000000000000000
+    Position.Y = 58.000000000000000000
+    Size.Width = 387.000000000000000000
+    Size.Height = 64.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    Text = 'Test HexLicense'
+    OnClick = btnTestHexLicenseClick
+  end
+  object mnoLogOutput: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    ReadOnly = True
+    Align = Client
+    Margins.Left = 10.000000000000000000
+    Margins.Top = 10.000000000000000000
+    Margins.Right = 10.000000000000000000
+    Margins.Bottom = 10.000000000000000000
+    Size.Width = 387.000000000000000000
+    Size.Height = 303.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 6
+    Viewport.Width = 379.000000000000000000
+    Viewport.Height = 295.000000000000000000
+  end
+  object MainToolbar: TToolBar
+    Size.Width = 407.000000000000000000
+    Size.Height = 48.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 11
+    object lblAppTitle: TLabel
+      Align = Client
+      Size.Width = 407.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'toollabel'
+      TextSettings.HorzAlign = Center
+      Text = 'HexLicense Test App'
+    end
+  end
+  object btnCloseApp: TButton
+    Align = Top
+    Margins.Left = 10.000000000000000000
+    Margins.Top = 10.000000000000000000
+    Margins.Right = 10.000000000000000000
+    Position.X = 10.000000000000000000
+    Position.Y = 132.000000000000000000
+    Size.Width = 387.000000000000000000
+    Size.Height = 64.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 13
+    Text = 'Close App'
+    OnClick = btnCloseAppClick
+  end
+  object FMXHexLicense1: TFMXHexLicense
+    Automatic = False
+    Storage = FMXHexOwnerLicenseStorage1
+    SerialNumber = FMXHexSerialNumber1
+    License = ltDayTrial
+    Duration = 30
+    Provider = 'My company name'
+    FixedStart = 42647.001808090280000000
+    FixedEnd = 42661.001808090280000000
+    Software = 'My application name'
+    Left = 68
+    Top = 44
+  end
+  object FMXHexOwnerLicenseStorage1: TFMXHexOwnerLicenseStorage
+    SerialMatrix = FMXHexSerialMatrix1
+    OnDataExists = HexOwnerLicenseStorage1DataExists
+    OnReadData = HexOwnerLicenseStorage1ReadData
+    OnWriteData = HexOwnerLicenseStorage1WriteData
+    Left = 240
+    Top = 44
+  end
+  object FMXHexSerialMatrix1: TFMXHexSerialMatrix
+    OnGetKeyMatrix = FMXHexSerialMatrix1GetKeyMatrix
+    Left = 52
+    Top = 116
+  end
+  object FMXHexSerialNumber1: TFMXHexSerialNumber
+    SerialMatrix = FMXHexSerialMatrix1
+    Left = 220
+    Top = 108
+  end
+end

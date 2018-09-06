@@ -1,0 +1,95 @@
+object MainForm: TMainForm
+  Left = 0
+  Top = 0
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = Single
+  Caption = 'HexLicense FireMonkey Windows Test Application'
+  ClientHeight = 411
+  ClientWidth = 447
+  Position = ScreenCenter
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMasterStyle = 0
+  object btnInvokeLicensePropertiesDialog: TButton
+    HelpType = htKeyword
+    Position.X = 8.000000000000000000
+    Position.Y = 56.000000000000000000
+    Size.Width = 200.000000000000000000
+    Size.Height = 32.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    Text = 'Invoke License Properties Dialog'
+    OnClick = btnInvokeLicensePropertiesDialogClick
+  end
+  object btnStartLicenseSession: TButton
+    Position.X = 8.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 200.000000000000000000
+    Size.Height = 32.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    Text = 'Start Session'
+    OnClick = btnStartLicenseSessionClick
+  end
+  object btnTestByteRage: TButton
+    Position.X = 8.000000000000000000
+    Position.Y = 104.000000000000000000
+    Size.Width = 200.000000000000000000
+    Size.Height = 32.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 8
+    Text = 'HexTools'
+    OnClick = btnTestByteRageClick
+  end
+  object ListBox1: TListBox
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    Position.X = 8.000000000000000000
+    Position.Y = 140.000000000000000000
+    Size.Width = 429.000000000000000000
+    Size.Height = 201.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 14
+    DisableFocusEffect = True
+    DefaultItemStyles.ItemStyle = ''
+    DefaultItemStyles.GroupHeaderStyle = ''
+    DefaultItemStyles.GroupFooterStyle = ''
+    Viewport.Width = 425.000000000000000000
+    Viewport.Height = 197.000000000000000000
+  end
+  object FMXHexLicense1: TFMXHexLicense
+    Automatic = False
+    Storage = FMXHexOwnerLicenseStorage1
+    SerialNumber = FMXHexSerialNumber1
+    License = ltDayTrial
+    Duration = 30
+    Provider = 'My company name'
+    FixedStart = 42649.465442222220000000
+    FixedEnd = 42663.465442222220000000
+    Software = 'My application name'
+    OnLicenseObtained = FMXHexLicense1LicenseObtained
+    OnAfterLicenseLoaded = FMXHexLicense1AfterLicenseLoaded
+    OnLicenseBegins = FMXHexLicense1LicenseBegins
+    OnLicenseExpires = FMXHexLicense1LicenseExpires
+    Left = 312
+    Top = 152
+  end
+  object FMXHexOwnerLicenseStorage1: TFMXHexOwnerLicenseStorage
+    SerialMatrix = FMXHexSerialMatrix1
+    OnDataExists = FMXHexOwnerLicenseStorage1DataExists
+    OnReadData = FMXHexOwnerLicenseStorage1ReadData
+    OnWriteData = FMXHexOwnerLicenseStorage1WriteData
+    Left = 336
+    Top = 224
+  end
+  object FMXHexSerialMatrix1: TFMXHexSerialMatrix
+    OnGetKeyMatrix = FMXHexSerialMatrix1GetKeyMatrix
+    Left = 312
+    Top = 80
+  end
+  object FMXHexSerialNumber1: TFMXHexSerialNumber
+    SerialMatrix = FMXHexSerialMatrix1
+    Left = 316
+    Top = 20
+  end
+end

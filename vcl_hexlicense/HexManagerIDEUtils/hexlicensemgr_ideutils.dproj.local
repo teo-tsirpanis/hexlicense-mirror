@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.552,=C:\work\hexlicense\trunk\keygen\numberform.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.837,C:\work\hexlicense\trunk\keygen\numberform.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.388,C:\Users\coder\Documents\Embarcadero\Studio\Projects\Package1.dproj=C:\work\hexlicense\trunk\HexManagerIDEUtils\hexlicensemgr_ideutils.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.477,=C:\work\hexlicense\trunk\keygen\exportform.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.802,C:\work\hexlicense\trunk\keygen\exportform.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.041,=dsnap.dcp</Transaction>
+  </Transactions>
+</BorlandProject>
