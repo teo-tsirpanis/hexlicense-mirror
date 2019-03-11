@@ -289,9 +289,9 @@ public
   property    Ready: boolean read GetReady;
 
   function    EncodePtr(const Source; const Target; ByteLen: int64): boolean; virtual; abstract;
-  function    EncodeStream(Source, Target: TStream): boolean; virtual; abstract;
-
   function    DecodePtr(const Source; const Target; ByteLen: int64): boolean; virtual; abstract;
+
+  function    EncodeStream(Source, Target: TStream): boolean; virtual; abstract;
   function    DecodeStream(Source, Target: TStream): boolean; virtual; abstract;
 
   // These access the above methods, no need to re-implement

@@ -1,4 +1,5 @@
 {$DEFINE FMX_TARGET}
+{.$DEFINE FMX_AUTOSTART} //do not enable, depricated!
 
 //############################################################################
 // All delphi versions support Win32, so this we can define

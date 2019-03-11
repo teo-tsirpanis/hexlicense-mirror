@@ -9,21 +9,21 @@ package HexLicenseFMX;
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
 {$IOCHECKS ON}
-{$LOCALSYMBOLS ON}
+{$LOCALSYMBOLS OFF}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION OFF}
+{$OPTIMIZATION ON}
 {$OVERFLOWCHECKS OFF}
 {$RANGECHECKS OFF}
-{$REFERENCEINFO ON}
+{$REFERENCEINFO OFF}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES ON}
+{$STACKFRAMES OFF}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$DEFINE DEBUG}
+{$DEFINE RELEASE}
 {$ENDIF IMPLICITBUILDING}
 {$IMPLICITBUILD ON}
 
@@ -36,10 +36,10 @@ requires
 
 contains
   FMX.frmhexmgrlicense in 'FMX.frmhexmgrlicense.pas' {frmLicenseProperties},
-  FMX.hexbuffers in 'FMX.hexbuffers.pas',
   FMX.hexmgrlicense in 'FMX.hexmgrlicense.pas',
   FMX.hexmgrreg in 'FMX.hexmgrreg.pas',
-  FMX.hextools in 'FMX.hextools.pas';
+  FMX.hextools in 'FMX.hextools.pas',
+  FMX.hexbuffers in 'FMX.hexbuffers.pas';
 
 end.
 

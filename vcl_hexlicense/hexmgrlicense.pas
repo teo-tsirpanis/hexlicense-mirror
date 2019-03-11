@@ -17,7 +17,7 @@ uses
 const
   CNT_HEXLICENSE_MAJOR    = 1;
   CNT_HEXLICENSE_MINOR    = 0;
-  CNT_HEXLICENSE_REVISION = 1;
+  CNT_HEXLICENSE_REVISION = 4;
 
   {$IFDEF SUPPORT_PIDS}
   CNT_ALL_PLATFORMS = 0
@@ -485,17 +485,8 @@ End;
 procedure THexLicense.Loaded;
 Begin
   inherited;
-
-  (* if not (csDesigning in ComponentState) then
-  begin
-    { if automatic start failed, re-raise exception }
-    try
-      BeginSession;
-    except
-      on exception do
-      raise;
-    end;
-  end;  *)
+  if not (csDesigning in ComponentState) then
+    BeginSession();
 End;
 
 procedure THexLicense.Notification(AComponent:TComponent;Operation:TOperation);

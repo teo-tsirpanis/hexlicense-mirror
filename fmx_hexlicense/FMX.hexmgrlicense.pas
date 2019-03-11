@@ -5,66 +5,46 @@ unit FMX.hexmgrlicense;
 interface
 
 uses
-  {$IFDEF VCL_TARGET}
-    {$IFDEF USE_NEW_UNITNAMES}
-    hexbuffers,
-    Winapi.Windows,
-    System.SysUtils, System.classes, System.Variants, Vcl.Controls,
-    System.dateutils, VCL.graphics, System.Win.Registry;
-    {$ELSE}
-    hexbuffers,
-    sysutils, classes, variants, controls, dateutils, graphics, windows, registry;
-    {$ENDIF}
+  System.SysUtils,
+  System.classes,
+  System.Variants,
+  System.dateutils,
+  System.UITypes,
+  {$IFDEF MSWINDOWS}
+  Winapi.Windows,
+  System.Win.Registry,
   {$ENDIF}
-
-  {$IFDEF FMX_TARGET}
-    FMX.hexbuffers,
-    FMX.Dialogs,
-    System.SysUtils, System.classes, System.Variants, System.dateutils,
-    System.UITypes,
-    {$IFDEF MSWINDOWS}
-    Winapi.Windows,
-    System.Win.Registry,
-    {$ENDIF}
-    FMX.Forms, FMX.graphics, FMX.frmhexmgrlicense;
-  {$ENDIF}
+  FMX.hexbuffers,
+  FMX.Dialogs,
+  FMX.Forms,
+  FMX.graphics,
+  FMX.frmhexmgrlicense;
 
 const
   CNT_FMXHEXLICENSE_MAJOR    = 1;
   CNT_FMXHEXLICENSE_MINOR    = 0;
-  CNT_FMXHEXLICENSE_REVISION = 3;
+  CNT_FMXHEXLICENSE_REVISION = 4;
   CNT_FMXHEXLICENSE_CIPNAME  = 'Embarcadero';
 
-  {$IFDEF FMX_TARGET}
-    {$IFDEF SUPPORT_PIDS}
-    CNT_ALL_PLATFORMS =
-      {$IFDEF SUPPORT_WIN32}   + pidWin32 {$ENDIF}
-      {$IFDEF SUPPORT_WIN64}   + pidWin64 {$ENDIF}
-      {$IFDEF SUPPORT_OSX32}   + pidOSX32 {$ENDIF}
-      {$IFDEF SUPPORT_OSX64}   + pidOSX64 {$ENDIF}
-      {$IFDEF SUPPORT_IOS32}   + pidiOSDevice32 {$ENDIF}
-      {$IFDEF SUPPORT_IOS64}   + pidiOSDevice64 {$ENDIF}
-      {$IFDEF SUPPORT_IOSDev}  + pidiOSDevice {$ENDIF}
-      {$IFDEF SUPPORT_ANDROID} + pidAndroid32ARM {$ENDIF}
-      {$IFDEF SUPPORT_IOS32 or SUPPORT_IOS64 or SUPPORT_IOSDev}
-        + pidiOSSimulator32
-      {$ENDIF}
-      ;
-
-    CNT_WIN_ONLY =
-      {$IFDEF SUPPORT_WIN32}   + pidWin32 {$ENDIF}
-      {$IFDEF SUPPORT_WIN64}   + pidWin64 {$ENDIF}
-      ;
+  {$IFDEF SUPPORT_PIDS}
+  CNT_ALL_PLATFORMS =
+    {$IFDEF SUPPORT_WIN32}   + pidWin32 {$ENDIF}
+    {$IFDEF SUPPORT_WIN64}   + pidWin64 {$ENDIF}
+    {$IFDEF SUPPORT_OSX32}   + pidOSX32 {$ENDIF}
+    {$IFDEF SUPPORT_OSX64}   + pidOSX64 {$ENDIF}
+    {$IFDEF SUPPORT_IOS32}   + pidiOSDevice32 {$ENDIF}
+    {$IFDEF SUPPORT_IOS64}   + pidiOSDevice64 {$ENDIF}
+    {$IFDEF SUPPORT_IOSDev}  + pidiOSDevice {$ENDIF}
+    {$IFDEF SUPPORT_ANDROID} + pidAndroid32ARM {$ENDIF}
+    {$IFDEF SUPPORT_IOS32 or SUPPORT_IOS64 or SUPPORT_IOSDev}
+      + pidiOSSimulator32
     {$ENDIF}
-  {$ENDIF}
+    ;
 
-  {$IFDEF VCL_TARGET}
-    {$IFDEF SUPPORT_PIDS}
-    CNT_ALL_PLATFORMS =
-      {$IFDEF SUPPORT_WIN32} + pidWin32 {$ENDIF}
-      {$IFDEF SUPPORT_WIN64} + pidWin64 {$ENDIF}
-      ;
-    {$ENDIF}
+  CNT_WIN_ONLY =
+    {$IFDEF SUPPORT_WIN32}   + pidWin32 {$ENDIF}
+    {$IFDEF SUPPORT_WIN64}   + pidWin64 {$ENDIF}
+    ;
   {$ENDIF}
 
 type
@@ -140,43 +120,32 @@ type
     lrState:        TFMXHexLicenseState;
     lrSerialnumber: string;
   End;
-                                    
+
   //###########################################################################
   // Event declarations
   //###########################################################################
 
   { Events for license }
-  TFMXHexBeforeLicenseLoadedEvent   =  procedure (Sender:TObject) of Object;
-  TFMXHexAfterLicenseLoadedEvent    =  procedure (Sender:TObject) of Object;
-  TFMXHexBeforeLicenseUnLoadedEvent =  procedure (Sender:TObject) of Object;
-  TFMXHexAfterLicenseUnloadedEvent  =  procedure (Sender:TObject) of Object;
-  TFMXHexLicenseExpiredEvent        =  procedure (Sender:TObject) of Object;
-  TFMXHexLicenseBeginsEvent         =  procedure (Sender:TObject) of Object;
-  TFMXHexLicenseObtainedEvent       =  procedure (Sender:TObject) of Object;
-  TFMXHexLicenseCountdownEvent      =  procedure (Sender:TObject;
-                                    Value:integer) of Object;
-  TFMXHexWarnDebuggerEvent          =  procedure (sender:TObject) of Object;
-  
+  TFMXHexBeforeLicenseLoadedEvent   =  procedure (Sender: TObject) of Object;
+  TFMXHexAfterLicenseLoadedEvent    =  procedure (Sender: TObject) of Object;
+  TFMXHexBeforeLicenseUnLoadedEvent =  procedure (Sender: TObject) of Object;
+  TFMXHexAfterLicenseUnloadedEvent  =  procedure (Sender: TObject) of Object;
+  TFMXHexLicenseExpiredEvent        =  procedure (Sender: TObject) of Object;
+  TFMXHexLicenseBeginsEvent         =  procedure (Sender: TObject) of Object;
+  TFMXHexLicenseObtainedEvent       =  procedure (Sender: TObject) of Object;
+  TFMXHexLicenseCountdownEvent      =  procedure (Sender: TObject; Value: integer) of Object;
+  TFMXHexWarnDebuggerEvent          =  procedure (sender: TObject) of Object;
+
   { Events for storage }
-  TFMXHexWriteLicenseEvent          =  procedure (sender:TObject;Stream:TStream;
-                                    var Failed:boolean) of Object;
-  TFMXHexReadLicenseEvent           =  procedure (Sender:TObject;Stream:TStream;
-                                    var Failed:boolean) of Object;
-  TFMXHexDataExistsEvent            =  procedure (Sender:TObject;
-                                    var Value:boolean) of Object;
+  TFMXHexWriteLicenseEvent          =  procedure (sender: TObject; Stream: TStream; var Failed:boolean) of Object;
+  TFMXHexReadLicenseEvent           =  procedure (Sender: TObject; Stream: TStream; var Failed:boolean) of Object;
+  TFMXHexDataExistsEvent            =  procedure (Sender: TObject; var Value: boolean) of Object;
+
   { Events for KeyMatrix }
-  TFMXHexGetKeyMatrixEvent          =  procedure (Sender:TObject;
-                                    Var Value: TFMXHexKeyMatrix) of Object;
+  TFMXHexGetKeyMatrixEvent          =  procedure (Sender: TObject; var Value: TFMXHexKeyMatrix) of Object;
+
   { Events for serialnumber }
-  TFMXHexSerialNumberAvailableEvent =  procedure (Sender:TObject;Value:string;
-                                    var Accepted:boolean) of Object;
-
-
-  TFMXHexLicenseInfo = Record
-  end;
-
-  TFMXHexShowRegisterDialogEvent = procedure (Sender:TObject;
-    const Info: TFMXHexLicenseInfo) of object;
+  TFMXHexSerialNumberAvailableEvent =  procedure (Sender: TObject; Value: string; var Accepted: boolean) of Object;
 
   //###########################################################################
   // Interface declarations
@@ -210,7 +179,6 @@ type
   {$IFDEF SUPPORT_STRICT} strict {$ENDIF}
   private
     FActive:          boolean;
-    FAuto:            boolean;
     FDurationLeft:    integer;
     FData:            TFMXHexLicenseRecord;
     FStorage:         TFMXHexCustomLicenseStorage;
@@ -225,7 +193,6 @@ type
     FOnAfter:         TFMXHexAfterLicenseLoadedEvent;
     FOnEnds:          TFMXHexLicenseExpiredEvent;
     FOnWarning:       TFMXHexWarnDebuggerEvent;
-    //FOnDialog:        TFMXHexShowRegisterDialogEvent;
 
     function    LicenseDataExists: boolean;
     procedure   ReadLicenseData;
@@ -276,10 +243,13 @@ type
 
     procedure   Notification(AComponent: TComponent; Operation: TOperation);override;
     procedure   BeforeDestruction;override;
-    procedure   Loaded;override;
+
+    {$IFDEF FMX_AUTOSTART}
+    procedure   Loaded; override;
+    {$ENDIF}
+
     Constructor Create(AOwner: TComponent);override;
   published
-    property Automatic: boolean read FAuto write FAuto stored true;
     property Storage: TFMXHexCustomLicenseStorage read FStorage write SetStorage;
     property SerialNumber: TFMXHexSerialNumber read FSerial write SetSerialnrclass;
     property License: TFMXHexLicenseType read FData.lrKind write StoreLicenseType stored true;
@@ -570,8 +540,7 @@ begin
     lrDuration := 30;
     lrused := 0;
   end;
-  FAuto:=False;
-End;
+end;
 
 class function TFMXHexLicense.GetVersionText: string;
 begin
@@ -589,23 +558,14 @@ Begin
   inherited;
 End;
 
+{$IFDEF FMX_AUTOSTART}
 procedure TFMXHexLicense.Loaded;
 Begin
   inherited;
-
-  { automatically start? }
-  If (csDesigning in ComponentState)
-  or (FAuto = False) then
-  exit;
-
-  { if automatic start failed, re-raise exception }
-  try
-    BeginSession;
-  except
-    on exception do
-    raise;
-  end;
+  if not (csDesigning in ComponentState)
+    BeginSession();
 End;
+{$ENDIF}
 
 procedure TFMXHexLicense.Notification(AComponent: TComponent; Operation: TOperation);
 Begin
@@ -1075,7 +1035,7 @@ begin
   exit;
 
   DoBeforeUnLoaded;
-    
+
   { Write license data }
   try
     WriteLicenseData;
@@ -1093,7 +1053,7 @@ begin
   FActive:=False;
   FDurationLeft:=0;
   ResetLicenseInformation;
-    
+
   DoAfterUnLoaded;
 End;
 
@@ -1859,7 +1819,7 @@ Begin
    Reg := TRegistry.Create;
     try
       Reg.RootKey := HKEY_CURRENT_USER;
-               
+
       { attempt to open the license information }
       if not reg.Openkey(LPath,False) then
       begin
@@ -2308,5 +2268,6 @@ begin
 end;
 
 end.
+
 
 
