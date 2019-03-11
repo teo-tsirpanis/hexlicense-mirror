@@ -1,6 +1,6 @@
 unit FMX.hexbuffers;
 
-{$I vcl.hexlicense.inc}
+{$I fmx.hexlicense.inc}
 
 {$DEFINE HEX_SUPPORT_INTERNET}
 {$DEFINE HEX_SUPPORT_VARIANTS}
@@ -210,14 +210,14 @@ public
 
   {$IFNDEF NO_UINT64}
   class function TerabytesIn(ByteCount: UInt64;
-      const Aligned: boolean = true):  NativeInt;
+      const Aligned: boolean = true):  UInt64;
   {$ENDIF}
 
   class function KilobytesOf(Amount: NativeInt):  int64;
   class function MegabytesOf(Amount: NativeInt):  int64;
   class function GigabytesOf(Amount: NativeInt):  int64;
   {$IFNDEF NO_UINT64}
-  class function TerabytesOf(Amount: NativeInt;
+  class function TerabytesOf(Amount: UInt64;
       const Aligned: boolean = true):  UInt64;
   {$ENDIF}
   class function AsString(const SizeInbytes: int64):  string;
@@ -380,7 +380,7 @@ protected
   function    GetObjectclass: TFMXHexObjectclass;
 protected
   (* implements:: IUnknown *)
-  function    QueryInterface(const IID:TGUID; out Obj): HResult; virtual; stdcall;
+  function    QueryInterface(const IID: TGUID; out Obj): HResult; virtual; stdcall;
   function    _AddRef: integer; virtual; stdcall;
   function    _Release: integer; virtual; stdcall;
 public
@@ -1059,7 +1059,7 @@ end;
 
 TFMXHexFieldGUID = class(TFMXHexRecordField)
 private
-  function    GetValue:TGUID;
+  function    GetValue: TGUID;
   procedure   SetValue(const NewValue:TGUID);
 protected
   function    GetDisplayName: string; override;
@@ -1125,12 +1125,7 @@ end;
 
 TFMXHexCustomRecord = class(TComponent)
 private
-  {$IFDEF VCL_TARGET}
-  FObjects:   TObjectList;
-  {$ENDIF}
-  {$IFDEF FMX_TARGET}
   FObjects:   TObjectList<TFMXHexRecordField>;
-  {$ENDIF}
   function    GetCount: integer;
   function    GetItem(const Index:integer): TFMXHexRecordField;
   procedure   SetItem(const Index: integer;
@@ -1155,7 +1150,9 @@ public
   function    AddData(const FieldName: string): TFMXHexFieldData;
   function    AddDateTime(const FieldName: string): TFMXHexFieldDateTime;
   function    AddDouble(const FieldName: string): TFMXHexFieldDouble;
+
   function    AddGUID(const FieldName: string):  TFMXHexFieldGUID;
+
   function    AddInt64(const FieldName: string): TFMXHexFieldInt64;
   function    AddLong(const FieldName: string): TFMXHexFieldLong;
 
@@ -6895,11 +6892,7 @@ end;
 constructor TFMXHexCustomRecord.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  {$IFDEF VCL_TARGET}
-  FObjects := TObjectList.Create(true);
-  {$ELSE}
   FObjects := TObjectList<TFMXHexRecordField>.Create(true);
-  {$ENDIF}
 end;
 
 destructor TFMXHexCustomRecord.Destroy;
@@ -7178,12 +7171,10 @@ begin
   result:=TFMXHexFieldDouble(Add(FieldName,TFMXHexFieldDouble));
 end;
 
-{$IFDEF VCL_TARGET}
 function TFMXHexCustomRecord.AddGUID(const FieldName: string): TFMXHexFieldGUID;
 begin
   result := TFMXHexFieldGUID(Add(FieldName,TFMXHexFieldGUID));
 end;
-{$ENDIF}
 
 function TFMXHexCustomRecord.AddInt64(const FieldName: string): TFMXHexFieldInt64;
 begin
@@ -7395,7 +7386,7 @@ end;
 //##########################################################################
 // TFMXHexFieldGUID
 //##########################################################################
-{$IFDEF VCL_TARGET}
+{$IFDEF FMX_TARGET}
 function TFMXHexFieldGUID.asstring: string;
 begin
   result:=string(HexGUIDToStr(Value));
@@ -7834,7 +7825,7 @@ end;
 
 {$IFNDEF NO_UINT64}
 class function TFMXHexSize.TerabytesIn(byteCount: UInt64;
-  const Aligned: boolean = true):  NativeInt;
+  const Aligned: boolean = true):  UInt64;
 begin
   result := byteCount div Terabyte;
   if Aligned then
@@ -7861,10 +7852,12 @@ begin
 end;
 
 {$IFNDEF NO_UINT64}
-class function TFMXHexSize.TerabytesOf(Amount: NativeInt;
+class function TFMXHexSize.TerabytesOf(Amount: UInt64;
     const Aligned: boolean = true):  UInt64;
 begin
+  {$WARNINGS OFF}
   result := abs(Amount) * Terabyte;
+  {$WARNINGS ON}
 end;
 {$ENDIF}
 

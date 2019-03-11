@@ -127,7 +127,7 @@ uses  Macapi.IOKit,
 {$ENDIF}
 
 resourcestring
-CNT_UNKNOWN = 'unknown';
+  CNT_UNKNOWN = 'unknown';
 
 function GetHexTools(var Access: THexTools): boolean;
 begin

@@ -32,10 +32,9 @@ type
   // Forward declarations
   //###########################################################################
 
-  THexRegistryLicenseStorage  = class;
   THexCustomLicenseStorage    = class;
   THexOwnerLicenseStorage     = class;
-  THexNumberSequence     = class;
+  THexNumberSequence          = class;
   THexFileLicenseStorage      = class;
   THexSerialGenerator         = class;
   THexSerialMatrix            = class;
@@ -151,7 +150,6 @@ type
   {$IFDEF SUPPORT_STRICT} strict {$ENDIF}
   private
     FActive:          boolean;
-    FAuto:            boolean;
     FDurationLeft:    integer;
     FData:            THexLicenseRecord;
     FStorage:         THexCustomLicenseStorage;
@@ -219,7 +217,6 @@ type
     procedure   Loaded;override;
     Constructor Create(AOwner: TComponent);override;
   published
-    property Automatic: boolean read FAuto write FAuto stored true;
     property Storage: THexCustomLicenseStorage read FStorage write SetStorage;
     property SerialNumber: THexSerialNumber read FSerial write SetSerialnrclass;
     property License: THexLicenseType read FData.lrKind write StoreLicenseType stored true;
@@ -317,7 +314,7 @@ type
   {$IFDEF SUPPORT_PIDS}
   [ComponentPlatformsAttribute(CNT_ALL_PLATFORMS)]
   {$ENDIF}
-  THexCustomLicenseStorage=class(TComponent, IHexLicenseStorage)
+  THexCustomLicenseStorage = class(TComponent, IHexLicenseStorage)
   {$IFDEF SUPPORT_STRICT} strict {$ENDIF}
   private
     FOnRead:  THexReadLicenseEvent;
@@ -328,16 +325,13 @@ type
 
     procedure SetMatrix(Value:THexSerialMatrix);
     procedure SetEncryption(NewEncoder: THexEncoder);
-    function RC4(Data: string; Key: string): string;
   {$IFDEF SUPPORT_STRICT} strict {$ENDIF}
   protected
     function CanEncode:boolean;
-    procedure EncodeData(pBuffer:pointer;Length:integer);
-    procedure DecodeData(pBuffer:pointer;Length:integer);
 
     (* IMPLEMENTS: IHexLicenseStorage *)
-    procedure ReadData(Stream:TStream;var Failed:boolean);virtual;
-    procedure WriteData(Stream:TStream;Var Failed:boolean);virtual;
+    procedure ReadData(Stream: TStream; var Failed: boolean);virtual;
+    procedure WriteData(Stream: TStream; Var Failed: boolean);virtual;
     function DataExists:boolean;virtual;
     function Ready:boolean;Virtual;
   public
@@ -350,34 +344,6 @@ type
     property OnReadData:  THexReadLicenseEvent read FOnRead write FOnRead;
     property OnWriteData: THexWriteLicenseEvent read FOnWrite write FOnWrite;
   end;
-
-
-  THexRegistryGetPathEvent = procedure (Sender:TObject;var Root:string) of object;
-
-  {$IFDEF SUPPORT_PIDS}
-  [ComponentPlatformsAttribute(CNT_ALL_PLATFORMS)]
-  {$ENDIF}
-  THexRegistryLicenseStorage = class(THexCustomLicenseStorage)
-  {$IFDEF SUPPORT_STRICT} strict {$ENDIF}
-  private
-    FRegValue:  string;
-    FRegPath:   string;
-    FOnGetPath: THexRegistryGetPathEvent;
-  {$IFDEF SUPPORT_STRICT} strict {$ENDIF}
-  protected
-    (* IMPLEMENTS: IHexLicenseStorage *)
-    procedure ReadData(Stream: TStream; var Failed: boolean);override;
-    procedure WriteData(Stream: TStream; var Failed: boolean);override;
-    function DataExists: boolean;override;
-    function Ready: boolean;Override;
-  public
-    constructor Create(AOwner:TComponent);Override;
-  published
-    property OnGetRegistryPath: THexRegistryGetPathEvent
-      read FOnGetPath write FOnGetPath;
-    property RegPath: string read FRegPath write FRegPath stored true;
-    property RegValue: string read FRegValue write FRegValue stored true;
-  End;
 
   {$IFDEF SUPPORT_PIDS}
   [ComponentPlatformsAttribute(CNT_ALL_PLATFORMS)]
@@ -498,7 +464,6 @@ begin
     lrDuration := 30;
     lrused := 0;
   end;
-  FAuto:=False;
 End;
 
 class function THexLicense.GetVersionText: string;
@@ -521,18 +486,16 @@ procedure THexLicense.Loaded;
 Begin
   inherited;
 
-  { automatically start? }
-  If (csDesigning in ComponentState)
-  or (FAuto = False) then
-  exit;
-
-  { if automatic start failed, re-raise exception }
-  try
-    BeginSession;
-  except
-    on exception do
-    raise;
-  end;
+  (* if not (csDesigning in ComponentState) then
+  begin
+    { if automatic start failed, re-raise exception }
+    try
+      BeginSession;
+    except
+      on exception do
+      raise;
+    end;
+  end;  *)
 End;
 
 procedure THexLicense.Notification(AComponent:TComponent;Operation:TOperation);
@@ -696,12 +659,7 @@ begin
             if FStorage.GetInterface(IHexLicenseStorage,mAccess) then
             begin
               LFailed := false;
-              try
-                mAccess.WriteData(LStream, LFailed);
-              except
-                on exception do
-                raise;
-              end;
+              mAccess.WriteData(LStream, LFailed);
             end else
             raise EHexLicenseDataIONotReady.Create(ERR_HEX_LicenseDataIONotReady);
           finally
@@ -845,7 +803,7 @@ Begin
   Begin
     { license has expired }
     //ResetLicenseInformation;
-    FActive:=True;
+    FActive := True;
     DoLicenseExpired;
     if LicenseState=lsExpired then
     Begin
@@ -1325,8 +1283,7 @@ end;
 
 procedure THexFileLicenseStorage.ReadData(Stream: TStream; var Failed: boolean);
 var
-  FFile:    TFileStream;
-  FBuffer:  pointer;
+  LFile:  TFileStream;
 Begin
   { are we terminating? }
   If (csDestroying in componentstate) then
@@ -1334,68 +1291,45 @@ Begin
 
   If assigned(OnReadData) then
   begin
-    inherited ReadData(Stream,Failed);
+    inherited ReadData(Stream, Failed);
     exit;
   end;
 
   { Can we encode? }
   If not CanEncode then
   Begin
-    Failed:=True;
+    Failed := true;
     Raise EHexLicenseMatrixNotReady.Create(ERR_HEX_LicenseMatrixNotReady);
   end;
 
   { Does the data exist? }
-  If not DataExists then
+  If not DataExists() then
   Begin
-    Failed:=True;
+    Failed := True;
     exit;
   end;
 
-  { Allocate temp memory buffer }
-  FBuffer:=Allocmem(SizeOf(THexLicenseRecord));
+  { open the file in question }
+  try
+    LFile := TFileStream.Create(FName,fmOpenRead);
+  except
+    on exception do
+    begin
+      Failed:=True;
+      raise EHexLicenseReadFailed.Create(ERR_Hex_LicenseReadFailed);
+    end;
+  end;
 
   try
-    { open the file in question }
-    try
-      FFile:=TFileStream.Create(FName,fmOpenRead);
-    except
-      on exception do
-      Begin
-        Failed:=True;
-        raise EHexLicenseReadFailed.Create(ERR_Hex_LicenseReadFailed);
-      end;
-    end;
-
-    { Get the data }
-    try
-      try
-        FFile.read(FBuffer^,SizeOf(THexLIcenseRecord));
-      except
-        on exception do
-        Begin
-          Failed:=True;
-          raise EHexLicenseReadFailed.Create(ERR_Hex_LicenseReadFailed);
-        end;
-      end;
-    finally
-      FFile.free;
-    end;
-
-    { Decode the data }
-    DecodeData(Fbuffer,SizeOf(THexLIcenseRecord));
-
-    { copy buffer into target stream }
-    stream.Write(FBuffer^,SizeOf(THexLicenseRecord));
+    Encryption.DecodeStream(LFile, Stream);
   finally
-    Freemem(Fbuffer,SizeOf(THexLicenseRecord));
+    LFile.Free;
   end;
 end;
 
-procedure THexFileLicenseStorage.WriteData(Stream:TStream;Var Failed:boolean);
+procedure THexFileLicenseStorage.WriteData(Stream: TStream; var Failed:boolean);
 var
   FFile:    TFileStream;
-  FBuffer:  pointer;
 Begin
   { are we terminating? }
   If (csDestroying in componentstate) then
@@ -1410,47 +1344,25 @@ Begin
   { Can we encode? }
   If not CanEncode then
   Begin
-    Failed:=True;
+    Failed := true;
     Raise EHexLicenseMatrixNotReady.Create(ERR_HEX_LicenseMatrixNotReady);
   end;
 
-  { Allocate temp memory buffer }
-  FBuffer:=Allocmem(SizeOf(THexLicenseRecord));
+  { open the file in question }
   try
-    { copy data into our buffer }
-    Stream.Read(FBuffer^,SizeOf(ThexLicenseRecord));
-
-    { Encode the data }
-    EncodeData(Fbuffer,SizeOf(THexLIcenseRecord));
-
-    { open the file in question }
-    try
-      FFile:=TFileStream.Create(FName,fmCreate or fmOpenWrite);
-    except
-      on exception do
-      Begin
-        Failed:=True;
-        raise EHexLicenseWriteFailed.Create(ERR_Hex_LicenseWriteFailed);
-      end;
+    FFile := TFileStream.Create(FName, fmCreate or fmOpenWrite);
+  except
+    on exception do
+    Begin
+      Failed := true;
+      raise EHexLicenseWriteFailed.Create(ERR_Hex_LicenseWriteFailed);
     end;
+  end;
 
-    { Get the data }
-    try
-      try
-        FFile.Write(FBuffer^,SizeOf(THexLIcenseRecord));
-      except
-        on exception do
-        Begin
-          Failed:=True;
-          raise EHexLicenseWriteFailed.Create(ERR_Hex_LicenseWriteFailed);
-        end;
-      end;
-    finally
-      FFile.free;
-    end;
-
+  try
+    Encryption.EncodeStream(Stream, FFile);
   finally
-    Freemem(Fbuffer,SizeOf(THexLicenseRecord));
+    FFile.Free;
   end;
 end;
 
@@ -1499,25 +1411,54 @@ Begin
   result := Assigned(FMatrix);
 End;
 
-procedure THexCustomLicenseStorage.ReadData(Stream: TStream; var Failed: boolean);
-Begin
-  If assigned(OnReadData) then
-  OnReadData(self,Stream,Failed) else
-  Failed:=true;
-End;
-
 procedure THexCustomLicenseStorage.WriteData(Stream: TStream; var Failed: boolean);
+var
+  LTemp: TMemoryStream;
 Begin
-  If assigned(OnWriteData) then
-  OnWriteData(Self,Stream,Failed) else
-  Failed:=true;
+  Failed := not assigned(OnWriteData);
+  if not Failed then
+  begin
+    LTemp := TMemoryStream.Create;
+    try
+      Encryption.EncodeStream(Stream, LTemp);
+      LTemp.Position := 0;
+
+      OnWriteData(self, LTemp, Failed);
+    finally
+      LTemp.Free;
+    end;
+  end;
 End;
 
-function THexCustomLicenseStorage.DataExists:boolean;
+procedure THexCustomLicenseStorage.ReadData(Stream: TStream; var Failed: boolean);
+var
+  LTemp: TMemoryStream;
+begin
+  Failed := not assigned(OnReadData);
+  if not Failed then
+  begin
+    LTemp := TMemoryStream.Create;
+    try
+      OnReadData(self, LTemp, Failed);
+
+      if not Failed then
+      begin
+        LTemp.Position := 0;
+        Encryption.DecodeStream(LTemp, Stream);
+      end;
+
+    finally
+      LTemp.Free;
+    end;
+  end;
+End;
+
+function THexCustomLicenseStorage.DataExists: boolean;
 Begin
-  If assigned(FOnExists) then
-  FOnExists(self,result) else
-  result:=False;
+  if assigned(FOnExists) then
+    FOnExists(self, result)
+  else
+    result := false;
 End;
 
 { purpose:
@@ -1525,151 +1466,28 @@ End;
   forfill it's task. }
 function THexCustomLicenseStorage.Ready:boolean;
 Begin
-  result:=assigned(FMatrix)
-    and assigned(OnReadData)
-    and assigned(OnWriteData);
-End;
-
-procedure THexCustomLicenseStorage.EncodeData(pBuffer:pointer;Length:integer);
-var
-  FResult:  string;
-  FCode:    string;
-  FKeys:    THexKeyMatrix;
-  mAccess:  IHexSerialMatrix;
-Begin
-  { Can we encode? }
-  If not CanEncode then
-  Raise EHexLicenseMatrixNotReady.Create(ERR_HEX_LicenseMatrixNotReady);
-
-  if FMatrix.GetInterface(IHexSerialMatrix,mAccess) then
-  Begin
-    if not mAccess.GetSerialMatrix(FKeys) then
-    Raise EHexLicenseMatrixFailed.Create(ERR_HEX_LicenseMatrixFailed);
-  end else
-  Raise EHexLicenseMatrixFailed.Create(ERR_Hex_LicenseMatrixNotReady);
-
-  { Did we get the matrix codes? }
-  //if not IHexSerialMatrix(FMatrix).GetSerialMatrix(FKeys) then
-  //Raise EHexLicenseMatrixFailed.Create(ERR_HEX_LicenseMatrixFailed);
-
-  { Build up the encryption key }
-  FCode:=chr(FKeys[5])
-        +chr(FKeys[6])
-        +chr(FKeys[2])
-        +chr(FKeys[10])
-        +chr(FKeys[4])
-        +chr(FKeys[0])
-        +chr(FKeys[1])
-        +chr(FKeys[7])
-        +chr(FKeys[11])
-        +chr(FKeys[9])
-        +chr(FKeys[3])
-        +chr(FKeys[8]);
-
-  try
-    { Get the content of the buffer }
-    SetLength(FResult,Length);
-    Move(pBuffer^,FResult[1],Length);
-
-    { encode the content }
-    FResult:=Rc4(FResult,FCode);
-
-    { write the encoded content back to buffer }
-    Move(FResult[1],pBuffer^,Length);
-  except
-    on exception do;
-  end;
-End;
-
-procedure THexCustomLicenseStorage.DecodeData(pBuffer: pointer; Length: integer);
-Begin
-  // RC4 is mutually exclusive
-  EncodeData(pBuffer,Length);
-End;
-
-function THexCustomLicenseStorage.RC4(Data: string; Key: string): string;
-(* var
-  S: Array[0..255] of Byte;
-  K: Array[0..255] of byte;
-  Temp,y:Byte;
-  I,J,T,X:integer;
-  target:string; *)
-var
-  //LEncoder: THexRC4Encoder;
-  LSource:  TStringStream;
-  LTarget:  TStringStream;
-begin
-  //LEncoder := THexRC4Encoder.Create;
-  try
-
-    //FEncryption.BuildRCTable(Key);
-    LSource := TStringStream.Create(Data);
-    try
-      LTarget := TStringStream.Create;;
-      try
-        if FEncryption.EncodeStream(LSource, LTarget) then
-        //if LEncoder.EncStream(LSource, LTarget) then
-        result := LTarget.DataString else
-        raise EHexLicenceStorage.Create('Internal encryption failure error');
-      finally
-        LTarget.Free;
+  result := false;
+  if assigned(FMatrix) then
+  begin
+    if assigned(OnReadData) then
+    begin
+      if assigned(OnWriteData) then
+      begin
+        result := true;
       end;
-    finally
-      LSource.Free;
     end;
-  finally
-    //LEncoder.Free;
   end;
-
-  { Byte key layout }
-  (* for i:=0 to 255 do
-  s[i]:=i;
-
-  { Rotate with keyword }
-  J:=1;
-  for I:=0 to 255 do
-  begin
-    if j>length(key) then j:=1;
-    k[i]:=byte(key[j]);
-    inc(j);
-  end;
-
-  { Modify rotation }
-  J:=0;
-  For i:=0 to 255 do
-  begin
-    j:=(j+s[i] + k[i]) mod 256;
-    temp:=s[i];
-    s[i]:=s[j];
-    s[j]:=Temp;
-  end;
-
-  { And kick ass }
-  i:=0;
-  j:=0;
-  for x:=1 to length(source) do
-  begin
-    i:=(i+1) mod 256;
-    j:=(j+s[i]) mod 256;
-    temp:=s[i];
-    s[i]:=s[j];
-    s[j]:=temp;
-    t:=(s[i] + (s[j] mod 256)) mod 256;
-    y:=s[t];
-    target:=target + char(byte(source[x]) xor y);
-  end;
-  result:=Target;  *)
 End;
 
 procedure THexCustomLicenseStorage.SetEncryption(NewEncoder: THexEncoder);
 begin
   if assigned(FEncryption) then
-  FEncryption.RemoveFreeNotification(self);
+    FEncryption.RemoveFreeNotification(self);
 
   FEncryption := NewEncoder;
 
   if assigned(FEncryption) then
-  FEncryption.FreeNotification(self);
+    FEncryption.FreeNotification(self);
 end;
 
 procedure THexCustomLicenseStorage.SetMatrix(Value:THexSerialMatrix);
@@ -1684,193 +1502,6 @@ Begin
   If Assigned(FMatrix) then
   FMatrix.FreeNotification(self);
 End;
-
-//############################################################
-// THexRegistryLicenseStorage
-//############################################################
-
-{$IFDEF MSWINDOWS}
-Constructor THexRegistryLicenseStorage.Create(AOwner:TComponent);
-Begin
-  inherited Create(AOwner);
-  FRegPath :=   'Software\Licenses\';
-  FRegValue := 'lcdata';
-End;
-
-function THexRegistryLicenseStorage.Ready:boolean;
-Begin
-  result:=assigned(SerialMatrix);
-End;
-
-function THexRegistryLicenseStorage.DataExists:boolean;
-var
-  Reg:    TRegistry;
-  LPath:  string;
-Begin
-  result:=False;
-
-  { are we terminating? }
-  If (csDestroying in componentstate) then
-  exit;
-
-  If assigned(OnDataExists) then
-  begin
-    result:=inherited DataExists;
-    exit;
-  end;
-
-  // Get registry path if user-defined
-  LPath := FRegPath + FRegValue;
-  if assigned(FOnGetPath) then
-  begin
-    FOnGetPath(self,LPath);
-    LPath := trim(LPath);
-  end;
-
-  try
-    Reg := TRegistry.Create;
-    try
-      Reg.RootKey := HKEY_CURRENT_USER;
-      result := reg.Openkey(LPath,False);
-      if result then
-      begin
-        result:=reg.ValueExists(FRegValue);
-      end
-    finally
-      Reg.CloseKey;
-      Reg.Free;
-    end;
-  except
-    on exception do;
-  end;
-End;
-
-procedure THexRegistryLicenseStorage.ReadData(Stream:TStream;var Failed:boolean);
-var
-  Reg:      TRegistry;
-  LPath:    string;
-  FBuffer:  pointer;
-Begin
-  { are we terminating? }
-  If (csDestroying in componentstate) then
-  exit;
-
-  (* Is read-data overriden? *)
-  If assigned(OnReadData) then
-  begin
-    inherited ReadData(Stream,Failed);
-    exit;
-  end;
-
-  { Can we encode? }
-  If not CanEncode then
-  Begin
-    Failed:=True;
-    Raise EHexLicenseMatrixNotReady.Create(ERR_HEX_LicenseMatrixNotReady);
-  end;
-
-  // Get registry path if user-defined
-  LPath := FRegPath + FRegValue;
-  if assigned(FOnGetPath) then
-  begin
-    FOnGetPath(self,LPath);
-    LPath := trim(LPath);
-  end;
-
-  { Allocate temp memory buffer }
-  FBuffer:=Allocmem(SizeOf(THexLicenseRecord));
-  try
-   Reg := TRegistry.Create;
-    try
-      Reg.RootKey := HKEY_CURRENT_USER;
-
-      { attempt to open the license information }
-      if not reg.Openkey(LPath,False) then
-      begin
-        Raise EHexLicenseMatrixFailed.Create(ERR_HEX_LicenseReadFailed);
-        exit;
-      end;
-
-      { read the registry data into our buffer }
-      reg.ReadBinaryData(FRegValue,FBuffer^,SizeOf(THexLIcenseRecord));
-
-      { Decode the data }
-      DecodeData(Fbuffer,SizeOf(THexLIcenseRecord));
-
-      { copy buffer into target stream }
-      stream.Write(FBuffer^,SizeOf(THexLicenseRecord));
-    finally
-      Reg.CloseKey;
-      Reg.Free;
-    end;
-  finally
-    Freemem(Fbuffer,SizeOf(THexLicenseRecord));
-  end;
-End;
-
-procedure THexRegistryLicenseStorage.WriteData(Stream:TStream;Var Failed:boolean);
-var
-  Reg:      TRegistry;
-  LPath:    string;
-  FBuffer:  pointer;
-Begin
-  { are we terminating? }
-  If (csDestroying in componentstate) then
-  exit;
-
-  If assigned(OnWriteData) then
-  begin
-    inherited WriteData(Stream,Failed);
-    exit;
-  end;
-
-  If not CanEncode then
-  Begin
-    Failed:=True;
-    Raise EHexLicenseMatrixNotReady.Create(ERR_HEX_LicenseMatrixNotReady);
-    exit;
-  end;
-
-  // Get registry path if user-defined
-  LPath := FRegPath + FRegValue;
-  if assigned(FOnGetPath) then
-  begin
-    FOnGetPath(self,LPath);
-    LPath := trim(LPath);
-  end;
-
-  { Allocate memory buffer }
-  FBuffer:=Allocmem(SizeOf(THexLicenseRecord));
-  try
-    { copy data into our buffer }
-    Stream.Read(FBuffer^,SizeOf(ThexLicenseRecord));
-
-    Reg := TRegistry.Create;
-    try
-      Reg.RootKey := HKEY_LOCAL_MACHINE;
-
-      { attempt to open the license information }
-      if not reg.Openkey(LPath,True) then
-      begin
-        Raise EHexLicenseMatrixFailed.Create(ERR_HEX_LicenseWriteFailed);
-        exit;
-      end;
-
-      { Encode the data }
-      EncodeData(Fbuffer,SizeOf(THexLIcenseRecord));
-
-      { read the registry data into our buffer }
-      reg.WriteBinaryData(FRegValue,FBuffer^,SizeOf(THexLIcenseRecord));
-    finally
-      Reg.CloseKey;
-      Reg.Free;
-    end;
-
-  finally
-    Freemem(Fbuffer,SizeOf(THexLicenseRecord));
-  end;
-End;
-{$ENDIF}
 
 //###########################################################################
 // THexSerialMatrix

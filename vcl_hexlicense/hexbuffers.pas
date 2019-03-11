@@ -11,11 +11,11 @@ interface
 uses
 {$IFDEF VCL_TARGET}
   {$IFNDEF USE_NEW_UNITNAMES}
-  SysUtils, classes, Math, Contnrs
-  {$IFDEF HEX_SUPPORT_ZLIB},Zlib{$ENDIF}
-  {$IFDEF HEX_SUPPORT_VARIANTS},variants{$ENDIF}
+    SysUtils, classes, Math, Contnrs
+    {$IFDEF HEX_SUPPORT_ZLIB},Zlib{$ENDIF}
+    {$IFDEF HEX_SUPPORT_VARIANTS},variants{$ENDIF}
   {$ELSE}
-  System.SysUtils, System.classes, System.Math, System.Contnrs
+    System.SysUtils, System.classes, System.Math, System.Generics.Collections
   {$IFDEF HEX_SUPPORT_ZLIB},System.Zlib{$ENDIF}
   {$IFDEF HEX_SUPPORT_VARIANTS},System.Variants{$ENDIF}
   {$ENDIF}
@@ -253,7 +253,6 @@ public
 
   procedure   Notification(AComponent: TComponent; Operation: TOperation); override;
 
-  constructor Create(AOwner: TComponent); override;
   destructor  Destroy; override;
 published
   property  OnKeyReset: TNotifyEvent read FOnReset write FOnReset;
@@ -288,15 +287,20 @@ protected
 public
   property    Ready: boolean read GetReady;
 
-  function    EncodePtr(const Source; const Target; ByteLen: int64): boolean; virtual; abstract;
-  function    EncodeStream(Source, Target: TStream): boolean; virtual; abstract;
+  function    EncodePtr(const Source; const Target; ByteLen: int64): int64; virtual; abstract;
+  function    EncodeStream(Source, Target: TStream): int64; virtual; abstract;
 
-  function    DecodePtr(const Source; const Target; ByteLen: int64): boolean; virtual; abstract;
-  function    DecodeStream(Source, Target: TStream): boolean; virtual; abstract;
+  function    DecodePtr(const Source; const Target; ByteLen: int64): int64; virtual; abstract;
+  function    DecodeStream(Source, Target: TStream): int64; virtual; abstract;
+
+  // Returns the size you should allocate for the target buffer.
+  // Some ciphers will return encoded data that is larger than the original
+  // byte-length of the source.
+  function    GetResultSizeOf(const PreSize: int64): int64; virtual;
 
   // These access the above methods, no need to re-implement
-  function    EncodeBuffer(const Source, Target: THexBuffer): boolean; virtual;
-  function    DecodeBuffer(const Source, Target: THexBuffer): boolean; virtual;
+  function    EncodeBuffer(const Source, Target: THexBuffer): int64; virtual;
+  function    DecodeBuffer(const Source, Target: THexBuffer): int64; virtual;
 
   procedure   Notification(AComponent: TComponent; Operation: TOperation); override;
 
@@ -335,11 +339,13 @@ end;
 {$ENDIF}
 THexEncoderRC4 = class(THexEncoder)
 public
-  function  EncodePtr(const Source; const Target; ByteLen: int64): boolean; override;
-  function  EncodeStream(Source, Target: TStream): boolean; override;
+  function  EncodePtr(const Source; const Target; ByteLen: int64): int64; override;
+  function  DecodePtr(const Source; const Target; ByteLen: int64): int64; override;
 
-  function  DecodePtr(const Source; const Target; ByteLen: int64): boolean; override;
-  function  DecodeStream(Source, Target: TStream): boolean; override;
+  function  GetResultSizeOf(const PreSize: int64): int64; override;
+
+  function  EncodeStream(Source, Target: TStream): int64; override;
+  function  DecodeStream(Source, Target: TStream): int64; override;
 end;
 
 {THexUserEncodeEvent = procedure (Sender: TObject; InByte: byte; var OutByte: byte) of object;
@@ -1125,10 +1131,11 @@ end;
 
 THexCustomRecord = class(TComponent)
 private
-  {$IFDEF VCL_TARGET}
+  // If the new unit-names are not supported, then generics is
+  // not available anyways -- so fall back on older TObjectList
+  {$IFNDEF USE_NEW_UNITNAMES}
   FObjects:   TObjectList;
-  {$ENDIF}
-  {$IFDEF FMX_TARGET}
+  {$ELSE}
   FObjects:   TObjectList<THexRecordField>;
   {$ENDIF}
   function    GetCount: integer;
@@ -1485,7 +1492,14 @@ end;
 // THexEncoderRC4
 //##########################################################################
 
-function THexEncoderRC4.EncodePtr(const Source; const Target; ByteLen: int64): boolean;
+function  THexEncoderRC4.GetResultSizeOf(const PreSize: int64): int64;
+begin
+  // RC4 is mutually exclusive, the encoded data is the same size
+  // as the decoded data. So same size buffer is ok.
+  result := PreSize;
+end;
+
+function THexEncoderRC4.EncodePtr(const Source; const Target; ByteLen: int64): int64;
 var
   i,j,t: integer;
   Temp,y:   byte;
@@ -1494,6 +1508,7 @@ var
   LTarget:  PByte;
   dx: int64;
 begin
+  result  := 0;
   LSource := @Source;
   LTarget := @Target;
 
@@ -1532,7 +1547,7 @@ begin
         dx := dx + 1;
       end;
 
-      result := true;
+      result := Bytelen;
 
       // Fire completion event
       if assigned(OnEncodingEnds) then
@@ -1540,13 +1555,12 @@ begin
 
     except
       on exception do
-      result := false;
+      result := 0;
     end;
-  end else
-  result := false;
+  end;
 end;
 
-function THexEncoderRC4.EncodeStream(Source, Target: TStream): boolean;
+function THexEncoderRC4.EncodeStream(Source, Target: TStream): int64;
 var
   i,j,t:    integer;
   Temp,y:   byte;
@@ -1555,7 +1569,7 @@ var
   dx:       int64;
   ByteLen:  int64;
 begin
-  result := false;
+  result := 0;
 
   if  (GetReady()
   and (Source <> nil)
@@ -1592,7 +1606,7 @@ begin
 
         // Fire progress event
         if assigned(OnEncodingProgress) then
-        OnEncodingProgress(Self, dx, ByteLen);
+          OnEncodingProgress(Self, dx, ByteLen);
 
         if source.Read(FDat, SizeOf(FDat)) = SizeOf(FDat) then
         Begin
@@ -1604,7 +1618,7 @@ begin
         dx := dx + 1;
       end;
 
-      result := true;
+      result := ByteLen;
 
       // Fire completion event
       if assigned(OnEncodingEnds) then
@@ -1612,12 +1626,12 @@ begin
 
     except
       on exception do
-      result := false;
+      result := 0;
     end;
   end;
 end;
 
-function THexEncoderRC4.DecodePtr(const Source; const Target; ByteLen: int64): boolean;
+function THexEncoderRC4.DecodePtr(const Source; const Target; ByteLen: int64): int64;
 var
   i,j,t: integer;
   Temp,y:   byte;
@@ -1626,6 +1640,7 @@ var
   LTarget:  PByte;
   dx: int64;
 begin
+  result  := 0;
   LSource := @Source;
   LTarget := @Target;
 
@@ -1636,7 +1651,7 @@ begin
   begin
     // Fire begins event
     if assigned(OnDecodingBegins) then
-    OnDecodingBegins(self, ByteLen);
+      OnDecodingBegins(self, ByteLen);
 
     (* duplicate table *)
     FSpare := THexKeyRC4(Key).Table;
@@ -1656,7 +1671,7 @@ begin
 
         // Fire progress event
         if assigned(OnDecodingProgress) then
-        OnDecodingProgress(Self, dx, ByteLen);
+          OnDecodingProgress(Self, dx, ByteLen);
 
         LTarget^ := Byte( LSource^ xor y );
         inc(LTarget);
@@ -1664,7 +1679,7 @@ begin
         dx := dx + 1;
       end;
 
-      result := true;
+      result := ByteLen;
 
       // Fire completion event
       if assigned(OnDecodingEnds) then
@@ -1672,13 +1687,12 @@ begin
 
     except
       on exception do
-      result := false;
+      result := 0;
     end;
-  end else
-  result := false;
+  end;
 end;
 
-function THexEncoderRC4.DecodeStream(Source, Target: TStream): boolean;
+function THexEncoderRC4.DecodeStream(Source, Target: TStream): int64;
 var
   i,j,t:    integer;
   Temp,y:   byte;
@@ -1687,7 +1701,7 @@ var
   dx:       int64;
   ByteLen:  int64;
 begin
-  result := false;
+  result := 0;
 
   if  (GetReady()
   and (Source <> nil)
@@ -1736,15 +1750,15 @@ begin
         dx := dx + 1;
       end;
 
-      result := true;
+      result := ByteLen;
 
       // Fire completion event
       if assigned(OnDecodingEnds) then
-      OnDecodingEnds(Self, ByteLen);
+        OnDecodingEnds(Self, ByteLen);
 
     except
       on exception do
-      result := false;
+      result := 0;
     end;
   end;
 end;
@@ -1870,12 +1884,18 @@ begin
   result := assigned(FCipherKey) and FCipherKey.Ready;
 end;
 
-function THexEncoder.EncodeBuffer(const Source, Target: THexBuffer): boolean;
+// Override this when making new encoders!
+function THexEncoder.GetResultSizeOf(const PreSize: int64): int64;
+begin
+  result := PreSize;
+end;
+
+function THexEncoder.EncodeBuffer(const Source, Target: THexBuffer): int64;
 var
   LSource: THexStreamAdapter;
   LTarget: THexStreamAdapter;
 begin
-  result := false;
+  result := 0;
 
   if GetReady() then
   begin
@@ -1885,13 +1905,13 @@ begin
       begin
         // Flush target if not empty
         if not Target.Empty then
-        Target.Release();
+          Target.Release();
 
         LSource := THexStreamAdapter.Create(source);
         try
           LTarget := THexStreamAdapter.Create(Target);
           try
-            EncodeStream(LSource, LTarget);
+            result := EncodeStream(LSource, LTarget);
           finally
             LTarget.Free;
           end;
@@ -1899,18 +1919,17 @@ begin
           LSource.Free;
         end;
 
-        result := true;
       end;
     end;
   end;
 end;
 
-function THexEncoder.DecodeBuffer(const Source, Target: THexBuffer): boolean;
+function THexEncoder.DecodeBuffer(const Source, Target: THexBuffer): int64;
 var
   LSource: THexStreamAdapter;
   LTarget: THexStreamAdapter;
 begin
-  result := false;
+  result := 0;
 
   if GetReady() then
   begin
@@ -1925,7 +1944,7 @@ begin
         try
           LTarget := THexStreamAdapter.Create(Target);
           try
-            DecodeStream(LSource, LTarget);
+            result := DecodeStream(LSource, LTarget);
           finally
             LTarget.Free;
           end;
@@ -1933,7 +1952,6 @@ begin
           LSource.Free;
         end;
 
-        result := true;
       end;
     end;
   end;
@@ -1942,11 +1960,6 @@ end;
 //##########################################################################
 // THexEncodingKey
 //##########################################################################
-
-constructor THexEncodingKey.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-end;
 
 destructor THexEncodingKey.Destroy;
 begin
@@ -4716,8 +4729,7 @@ begin
     try
       LTarget := THexStreamAdapter.Create(Target);
       try
-        if not FEncryption.EncodeStream(LSource, LTarget) then
-        //if not FEncryption.EncStream(LSource, LTarget) then
+        if not (FEncryption.EncodeStream(LSource, LTarget) > 0) then
         raise EHexBufferError.Create('EncryptTo failed, internal encryption error');
       finally
         LTarget.Free;
@@ -4743,7 +4755,7 @@ begin
         if not Empty then
           Release();
 
-        if not FEncryption.DecodeStream(LSource, LTarget) then
+        if not (FEncryption.DecodeStream(LSource, LTarget) > 0) then
         raise EHexBufferError.Create('DecryptFrom failed, internal encryption error');
       finally
         LTarget.Free;
@@ -4766,7 +4778,7 @@ begin
     try
       LTarget := THexStreamAdapter.Create(result);
       try
-        if not FEncryption.EncodeStream(LSource, LTarget) then
+        if not (FEncryption.EncodeStream(LSource, LTarget) > 0) then
         raise EHexBufferError.Create('EncryptTo failed, internal encryption error');
       finally
         LTarget.Free;
@@ -4788,7 +4800,7 @@ begin
     try
       LTarget := THexStreamAdapter.Create(result);
       try
-        if not FEncryption.DecodeStream(LSource, LTarget) then
+        if not (FEncryption.DecodeStream(LSource, LTarget) > 0) then
         raise EHexBufferError.Create('DecryptTo failed, internal encryption error');
       finally
         LTarget.Free;
@@ -6895,7 +6907,7 @@ end;
 constructor THexCustomRecord.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  {$IFDEF VCL_TARGET}
+  {$IFNDEF USE_NEW_UNITNAMES}
   FObjects := TObjectList.Create(true);
   {$ELSE}
   FObjects := TObjectList<THexRecordField>.Create(true);
@@ -7839,8 +7851,10 @@ begin
   result := byteCount div Terabyte;
   if Aligned then
   begin
+    {$WARNINGS OFF}
     if (result * Terabyte) < byteCount then
       inc(result);
+    {$WARNINGS ON}
   end;
 end;
 {$ENDIF}
@@ -7864,7 +7878,9 @@ end;
 class function THexSize.TerabytesOf(Amount: NativeInt;
     const Aligned: boolean = true):  UInt64;
 begin
+  {$WARNINGS OFF}
   result := abs(Amount) * Terabyte;
+  {$WARNINGS ON}
 end;
 {$ENDIF}
 

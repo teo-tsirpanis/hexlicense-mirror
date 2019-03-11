@@ -45,9 +45,9 @@ const
       {$IFDEF SUPPORT_IOS32}   + pidiOSDevice32 {$ENDIF}
       {$IFDEF SUPPORT_IOS64}   + pidiOSDevice64 {$ENDIF}
       {$IFDEF SUPPORT_IOSDev}  + pidiOSDevice {$ENDIF}
-      {$IFDEF SUPPORT_ANDROID} + pidAndroid {$ENDIF}
+      {$IFDEF SUPPORT_ANDROID} + pidAndroid32ARM {$ENDIF}
       {$IFDEF SUPPORT_IOS32 or SUPPORT_IOS64 or SUPPORT_IOSDev}
-        + pidiOSSimulator
+        + pidiOSSimulator32
       {$ENDIF}
       ;
 

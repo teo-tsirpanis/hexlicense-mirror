@@ -15,7 +15,6 @@ unit hexmgrreg;
   Begin
     RegisterComponents('HexLicense',
     [THexLicense,
-    THexRegistryLicenseStorage,
     THexOwnerLicenseStorage,
     THexFileLicenseStorage,
     THexSerialMatrix,
