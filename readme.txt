@@ -1,3 +1,14 @@
+NOTE: This repository is a mirror of an once public repository formerly located at
+https://bitbucket.org/cipher_diaz/hexlicense/src/master/. For unknown reasons, it was
+either removed or turned private.
+
+In https://web.archive.org/web/20191103192600/https://jonlennartaasenden.wordpress.com/2018/09/06/hexlicense-patreon-and-all-that/,
+the repository's original author expressed his intent to make it a "public repository that everyone has access to", and
+to be licensed under LGPL v3.
+
+Because open source licenses cannot be revoked, and because this project is far too interesting to be vanished like that,
+I created this mirror.
+
 Hexlicense 1.0.4
 ================
 
